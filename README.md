@@ -1,2 +1,0 @@
-# Bakalaurinis
-Bakalaurinis
