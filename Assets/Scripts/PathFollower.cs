@@ -22,6 +22,7 @@ public class PathFollower : MonoBehaviour
     public int currentPoint = 0;
     public GameObject dangerIndicator;
     public GameObject clearIndicator;
+	public GameObject prefab;
     private static double Q = 0.000001;
     private static double R = 0.000004;
     private static double P = 1, X = 0, K;
@@ -131,21 +132,23 @@ public class PathFollower : MonoBehaviour
             {
                 if (idealVectors[i] != null)
                 {
-                    //Skrydžio trajektorijos apskritimai
+					//Instantiate(prefab, idealVectors[i], Quaternion.identity);
+                    /*Skrydžio trajektorijos apskritimai
 #if UNITY_EDITOR
                     Handles.color = Color.green;
 
                     Handles.DrawWireDisc(idealVectors[i], new Vector3(1f, 1f, 4f), deviationRange*2);
                     /*Apskritimų piešimo dažnio sumažinimas
                     if (skipCount == 3) Handles.DrawWireDisc(idealVectors[i], new Vector3(1f, 1f, 4f), deviationRange);
-                    skipCount++;*/
+                    skipCount++;
 #endif
-                   /* if (skipCount > 3) skipCount = 0;
+                    if (skipCount > 3) skipCount = 0;
                     */
                 }
             }
         }
     }
+
 
     //Koordinatės skaičiavimas naudojant Kalmano filtra 
     private void measurementUpdate()
