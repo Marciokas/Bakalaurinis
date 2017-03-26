@@ -9,7 +9,6 @@ using UnityEditor;
 
 public class PathFollower : MonoBehaviour
 {
-
     private Vector3[] realVectors = new Vector3[66];
     private Vector3[] idealVectors = new Vector3[66];
     private Vector3 _direction;
@@ -30,7 +29,7 @@ public class PathFollower : MonoBehaviour
     void Start()
     {
         //Failo nuskaitymas
-		StreamReader inp_stm = new StreamReader("E:\\Bakalaurinis\\new 20.txt");
+		StreamReader inp_stm = new StreamReader("C:\\Bakalaurinis\\new 20.txt");
 
         int i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -52,7 +51,7 @@ public class PathFollower : MonoBehaviour
         inp_stm.Close();
 
         //Failo nuskaitymas
-		inp_stm = new StreamReader("E:\\Bakalaurinis\\koordinatės.txt");
+		inp_stm = new StreamReader("C:\\Bakalaurinis\\koordinatės.txt");
 
         i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -63,12 +62,28 @@ public class PathFollower : MonoBehaviour
             //Kiekvienai koordinatei sukuriamas Vector3 objektas ir kiekviena koordinatė yra išplėčiama atitinkamai koordinačių kiekiui (-i*10)
             Vector3 vector = new Vector3(float.Parse(vectorArray[0]) - i * 10, (float)Math.Round(updateKalman(float.Parse(vectorArray[2]))), float.Parse(vectorArray[1]) - i * 10);
             //Ši koordinatė patalpinama į sąrašą
-            idealVectors[i] = vector;
+            idealVectors[i] = vector;  
             i++;
         }
+        generateIdealTrajectory();
 
         //Uždaromas nuskaitytas failas
         inp_stm.Close();
+    }
+
+    void generateIdealTrajectory()
+    {
+        for (int i = 0; i < idealVectors.Length - 1; i++)
+        {            
+            dist = Vector3.Distance(idealVectors[i], idealVectors[i+1]);
+            _direction = (idealVectors[i] - idealVectors[i + 1]).normalized;
+            if (_direction != Vector3.zero)
+            {
+                _lookRotation = Quaternion.LookRotation(_direction);
+                GameObject circle = Instantiate(prefab, idealVectors[i], Quaternion.Euler(new Vector3(_lookRotation.x, -40, 90))) as GameObject;
+                circle.transform.localScale = Vector3.one * deviationRange;
+            }            
+        }
     }
 
     void Update()
@@ -107,44 +122,14 @@ public class PathFollower : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        int skipCount = 0;
-
         if (realVectors.Length > 0)
         {
             //Nuskaitytos trajektorijos ciklas
             for (int i = 0; i < realVectors.Length - 1; i++)
             {
-                if (realVectors[i] != null)
-                {
-                    //Skrydžio trajektorijos linija
-                    Gizmos.color = Color.blue;
-                    Gizmos.DrawLine(realVectors[i], realVectors[i + 1]);
-                }
-            }
-        }
-
-        skipCount = 0;
-
-        if (idealVectors.Length > 0)
-        {
-            //Nuskaitytos trajektorijos ciklas
-            for (int i = 0; i < idealVectors.Length - 1; i++)
-            {
-                if (idealVectors[i] != null)
-                {
-					//Instantiate(prefab, idealVectors[i], Quaternion.identity);
-                    /*Skrydžio trajektorijos apskritimai
-#if UNITY_EDITOR
-                    Handles.color = Color.green;
-
-                    Handles.DrawWireDisc(idealVectors[i], new Vector3(1f, 1f, 4f), deviationRange*2);
-                    /*Apskritimų piešimo dažnio sumažinimas
-                    if (skipCount == 3) Handles.DrawWireDisc(idealVectors[i], new Vector3(1f, 1f, 4f), deviationRange);
-                    skipCount++;
-#endif
-                    if (skipCount > 3) skipCount = 0;
-                    */
-                }
+                //Skrydžio trajektorijos linija
+                Gizmos.color = Color.blue;
+                Gizmos.DrawLine(realVectors[i], realVectors[i + 1]);                
             }
         }
     }
