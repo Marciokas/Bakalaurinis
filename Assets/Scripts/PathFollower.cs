@@ -13,7 +13,7 @@ public class PathFollower : MonoBehaviour
     private Vector3[] idealVectors = new Vector3[66];
     private Vector3 _direction;
     private Quaternion _lookRotation;
-    public float speed = 25.0f;
+    public float speed = 50.0f;
     public float reachDist = 1.0f;
     public float rotationSpeed = 1.0f;
     public float deviationRange = 5.0f;
@@ -29,7 +29,7 @@ public class PathFollower : MonoBehaviour
     void Start()
     {
         //Failo nuskaitymas
-		StreamReader inp_stm = new StreamReader("C:\\Bakalaurinis\\new 20.txt");
+		StreamReader inp_stm = new StreamReader("E:\\Bakalaurinis\\new 20.txt");
 
         int i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -51,7 +51,7 @@ public class PathFollower : MonoBehaviour
         inp_stm.Close();
 
         //Failo nuskaitymas
-		inp_stm = new StreamReader("C:\\Bakalaurinis\\koordinatės.txt");
+		inp_stm = new StreamReader("E:\\Bakalaurinis\\koordinatės.txt");
 
         i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -65,7 +65,7 @@ public class PathFollower : MonoBehaviour
             idealVectors[i] = vector;  
             i++;
         }
-        generateIdealTrajectory();
+       generateIdealTrajectory();
 
         //Uždaromas nuskaitytas failas
         inp_stm.Close();
