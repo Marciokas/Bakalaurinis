@@ -19,9 +19,13 @@ public class PathFollower : MonoBehaviour
     public float deviationRange = 5.0f;
     private float dist;
     public int currentPoint = 0;
-    public GameObject dangerIndicator;
-    public GameObject clearIndicator;
-	public GameObject prefab;
+    public GameObject dangerIndicatorX;
+    public GameObject clearIndicatorX;
+    public GameObject dangerIndicatorY;
+    public GameObject clearIndicatorY;
+    public GameObject dangerIndicatorZ;
+    public GameObject clearIndicatorZ;
+    public GameObject prefab;
     private static double Q = 0.000001;
     private static double R = 0.000004;
     private static double P = 1, X = 0, K;
@@ -150,52 +154,60 @@ public class PathFollower : MonoBehaviour
         return result;
     }
 
-    private void changeIndicator(bool dangerActive)
+    private void changeIndicator(bool dangerActive, String coordinate)
     {
-        dangerIndicator.SetActive(dangerActive);
-        clearIndicator.SetActive(!dangerActive);
+        switch(coordinate)
+        {
+            case "X":
+                dangerIndicatorX.SetActive(dangerActive);
+                clearIndicatorX.SetActive(!dangerActive);
+                break;
+            case "Y":
+                dangerIndicatorY.SetActive(dangerActive);
+                clearIndicatorY.SetActive(!dangerActive);
+                break;
+            case "Z":
+                dangerIndicatorZ.SetActive(dangerActive);
+                clearIndicatorZ.SetActive(!dangerActive);
+                break;
+            default:
+                throw new Exception();
+        }
+      
     }
 
+    //Koordinačių paklaidos matavimo metodas
     private void checkVectorDeviation()
     {
         Vector3 currentVector = realVectors[currentPoint];
         Vector3 correctVector = idealVectors[currentPoint];
 
-        if (isCoordinateDeviating(currentVector.x, correctVector.x) || isCoordinateDeviating(currentVector.y, correctVector.y) || isCoordinateDeviating(currentVector.z, correctVector.z))
-        {
-            changeIndicator(true);
-        } else
-        {
-            changeIndicator(false);
-        }
+        // Tikrinamos visos koordinatės iš eilės X, Y, Z ir jeigu bent viena neatitinka rėžių, keičiama indikatoriaus spalva
+        changeIndicator(isCoordinateDeviating(currentVector.x, correctVector.x), "X");
+        changeIndicator(isCoordinateDeviating(currentVector.y, correctVector.y), "Y");
+        changeIndicator(isCoordinateDeviating(currentVector.z, correctVector.z), "Z");
     }
 
     private bool isCoordinateDeviating(float currentCoordinate, float correctCoordinate)
     {
         if (currentCoordinate > 0)
         {
+            //Apskaičiuojami teigiamos koordinatės rėžiai
             float maxCoordinate = correctCoordinate + deviationRange;
             float minCoordinate = correctCoordinate - deviationRange;
-            if (minCoordinate > currentCoordinate || currentCoordinate > maxCoordinate)
-            {
-                return true;
-            } else
-            {
-                return false;
-            }
+
+            Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate > currentCoordinate || currentCoordinate > maxCoordinate));
+            return minCoordinate > currentCoordinate || currentCoordinate > maxCoordinate;
         }
 
         if (currentCoordinate < 0)
         {
+            //Apskaičiuojami neigiamos koordinatės rėžiai
             float maxCoordinate = correctCoordinate - deviationRange;
             float minCoordinate = correctCoordinate + deviationRange;
-            if (minCoordinate < currentCoordinate || currentCoordinate < maxCoordinate)
-            {
-                return true;
-            } else
-            {
-                return false;
-            }
+
+            Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate < currentCoordinate || currentCoordinate < maxCoordinate));
+            return minCoordinate < currentCoordinate || currentCoordinate < maxCoordinate;
         }
 
         return false;
