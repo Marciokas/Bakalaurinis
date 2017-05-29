@@ -11,8 +11,26 @@ public class CameraSwitch : MonoBehaviour {
     public GameObject indicatorDialog;
     public int cameraIndex = 2;
 
+    void Start ()
+    {
+        firstCamera.enabled = false;
+        thirdCamera.enabled = false;
+        fourthCamera.enabled = false;
+        secondCamera.enabled = true;
+        indicatorDialog.SetActive(true);
+    }
+
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            firstCamera.enabled = false;
+            thirdCamera.enabled = false;
+            fourthCamera.enabled = false;
+            secondCamera.enabled = true;
+            indicatorDialog.SetActive(true);
+        }
+
         if (Input.GetKeyDown(KeyCode.C))
         {
             if (cameraIndex < 4)
@@ -23,7 +41,7 @@ public class CameraSwitch : MonoBehaviour {
             {
                 cameraIndex = 1;
             }
-        }
+        
         firstCamera.enabled = false;
         secondCamera.enabled = false;
         thirdCamera.enabled = false;
@@ -46,5 +64,6 @@ public class CameraSwitch : MonoBehaviour {
         {
             fourthCamera.enabled = true;
         }
+    }
     }
 }

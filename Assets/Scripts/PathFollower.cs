@@ -2,9 +2,8 @@
 using System.Collections;
 using System.IO;
 using System;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
+
 
 
 public class PathFollower : MonoBehaviour
@@ -16,7 +15,15 @@ public class PathFollower : MonoBehaviour
     public float speed = 50.0f;
     public float reachDist = 1.0f;
     public float rotationSpeed = 1.0f;
-    public float deviationRange = 5.0f;
+    public float D5Deviation = 5.0f;
+    public float D4Deviation = 4.0f;
+    public float D3Deviation = 3.0f;
+    public float D2Deviation = 2.0f;
+    public float D1Deviation = 1.0f;
+    public float D4Alt = 17.6f;
+    public float D3Alt = 13.9f;
+    public float D2Alt = 10.15f;
+    public float D1Alt = 6.45f;
     private float dist;
     public int currentPoint = 0;
     public GameObject dangerIndicatorX;
@@ -33,7 +40,7 @@ public class PathFollower : MonoBehaviour
     void Start()
     {
         //Failo nuskaitymas
-		StreamReader inp_stm = new StreamReader("E:\\Bakalaurinis\\new 20.txt");
+		StreamReader inp_stm = new StreamReader("C:\\Bakalaurinis\\Reali su nukrypimu.txt");
 
         int i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -55,7 +62,7 @@ public class PathFollower : MonoBehaviour
         inp_stm.Close();
 
         //Failo nuskaitymas
-		inp_stm = new StreamReader("E:\\Bakalaurinis\\koordinatės.txt");
+		inp_stm = new StreamReader("C:\\Bakalaurinis\\IdealiTrajektorija.txt");
 
         i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -64,7 +71,7 @@ public class PathFollower : MonoBehaviour
             string inp_ln = inp_stm.ReadLine();
             String[] vectorArray = inp_ln.Split(' ');
             //Kiekvienai koordinatei sukuriamas Vector3 objektas ir kiekviena koordinatė yra išplėčiama atitinkamai koordinačių kiekiui (-i*10)
-            Vector3 vector = new Vector3(float.Parse(vectorArray[0]) - i * 10, (float)Math.Round(updateKalman(float.Parse(vectorArray[2]))), float.Parse(vectorArray[1]) - i * 10);
+            Vector3 vector = new Vector3(float.Parse(vectorArray[0]) - i * 10, float.Parse(vectorArray[2]), float.Parse(vectorArray[1]) - i * 10);
             //Ši koordinatė patalpinama į sąrašą
             idealVectors[i] = vector;  
             i++;
@@ -77,17 +84,45 @@ public class PathFollower : MonoBehaviour
 
     void generateIdealTrajectory()
     {
+        float deviationRange = D5Deviation;
         for (int i = 0; i < idealVectors.Length - 1; i++)
-        {            
+        {
+            //Nustatomas atstumas nuo esamos iki sekančios koordinatės
             dist = Vector3.Distance(idealVectors[i], idealVectors[i+1]);
+            //Surandama kryptis nuo esamos koordinatės iki sekančios
             _direction = (idealVectors[i] - idealVectors[i + 1]).normalized;
             if (_direction != Vector3.zero)
             {
                 _lookRotation = Quaternion.LookRotation(_direction);
+                //Inicijuojamas naujas apskritimas
                 GameObject circle = Instantiate(prefab, idealVectors[i], Quaternion.Euler(new Vector3(_lookRotation.x, -40, 90))) as GameObject;
-                circle.transform.localScale = Vector3.one * deviationRange;
+                deviationRange = processDeviationRange(i);
+
+                //Nustatomas apskritimo skersmuo
+                circle.transform.localScale = Vector3.one * (deviationRange/10);
             }            
         }
+    }
+
+    float processDeviationRange(int i)
+    {
+        if (idealVectors[i].y < D4Alt && idealVectors[i].y > D3Alt)
+        {
+            return D4Deviation;
+        }
+        if (idealVectors[i].y < D3Alt && idealVectors[i].y > D2Alt)
+        {
+            return D3Deviation;
+        }
+        if (idealVectors[i].y < D2Alt && idealVectors[i].y > D1Alt)
+        {
+            return D2Deviation;
+        }
+        if (idealVectors[i].y < D1Alt)
+        {
+            return D1Deviation;
+        }
+        return D5Deviation;
     }
 
     void Update()
@@ -123,21 +158,6 @@ public class PathFollower : MonoBehaviour
             currentPoint = realVectors.Length - 1;
         }
     }
-
-    void OnDrawGizmos()
-    {
-        if (realVectors.Length > 0)
-        {
-            //Nuskaitytos trajektorijos ciklas
-            for (int i = 0; i < realVectors.Length - 1; i++)
-            {
-                //Skrydžio trajektorijos linija
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(realVectors[i], realVectors[i + 1]);                
-            }
-        }
-    }
-
 
     //Koordinatės skaičiavimas naudojant Kalmano filtra 
     private void measurementUpdate()
@@ -176,27 +196,29 @@ public class PathFollower : MonoBehaviour
       
     }
 
-    //Koordinačių paklaidos matavimo metodas
-    private void checkVectorDeviation()
+    //Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate > currentCoordinate || currentCoordinate > maxCoordinate));
+  // Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate<currentCoordinate || currentCoordinate<maxCoordinate));
+        private void checkVectorDeviation()
     {
         Vector3 currentVector = realVectors[currentPoint];
         Vector3 correctVector = idealVectors[currentPoint];
+        float deviationRange = processDeviationRange(currentPoint);
 
         // Tikrinamos visos koordinatės iš eilės X, Y, Z ir jeigu bent viena neatitinka rėžių, keičiama indikatoriaus spalva
-        changeIndicator(isCoordinateDeviating(currentVector.x, correctVector.x), "X");
-        changeIndicator(isCoordinateDeviating(currentVector.y, correctVector.y), "Y");
-        changeIndicator(isCoordinateDeviating(currentVector.z, correctVector.z), "Z");
+        changeIndicator(isCoordinateDeviating(currentVector.x, correctVector.x, deviationRange), "X");
+        changeIndicator(isCoordinateDeviating(currentVector.y, correctVector.y, deviationRange), "Y");
+        changeIndicator(isCoordinateDeviating(currentVector.z, correctVector.z, deviationRange), "Z");
     }
 
-    private bool isCoordinateDeviating(float currentCoordinate, float correctCoordinate)
+    //Koordinačių paklaidos matavimo metodas
+    private bool isCoordinateDeviating(float currentCoordinate, float correctCoordinate, float deviationRange)
     {
         if (currentCoordinate > 0)
         {
             //Apskaičiuojami teigiamos koordinatės rėžiai
             float maxCoordinate = correctCoordinate + deviationRange;
             float minCoordinate = correctCoordinate - deviationRange;
-
-            Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate > currentCoordinate || currentCoordinate > maxCoordinate));
+           
             return minCoordinate > currentCoordinate || currentCoordinate > maxCoordinate;
         }
 
@@ -205,12 +227,20 @@ public class PathFollower : MonoBehaviour
             //Apskaičiuojami neigiamos koordinatės rėžiai
             float maxCoordinate = correctCoordinate - deviationRange;
             float minCoordinate = correctCoordinate + deviationRange;
-
-            Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate < currentCoordinate || currentCoordinate < maxCoordinate));
+            
             return minCoordinate < currentCoordinate || currentCoordinate < maxCoordinate;
         }
 
         return false;
     }
+
+    /*void OnDrawGizmos()
+    {
+        for (int i = 0; i < idealVectors.Length - 1; i++)
+        {
+            Handles.color = Color.black;
+            Handles.DrawWireDisc(idealVectors[i], new Vector3(1f, 1f, 4f), processDeviationRange(currentPoint));
+        }
+    }*/
 
 }
