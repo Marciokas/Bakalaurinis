@@ -1,10 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.IO;
 using System;
-using UnityEditor;
-
-
 
 public class PathFollower : MonoBehaviour
 {
@@ -40,7 +36,7 @@ public class PathFollower : MonoBehaviour
     void Start()
     {
         //Failo nuskaitymas
-		StreamReader inp_stm = new StreamReader("C:\\Bakalaurinis\\Reali su nukrypimu.txt");
+		StreamReader inp_stm = new StreamReader("E:\\Bakalaurinis\\realTrajectory.txt");
 
         int i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -62,7 +58,7 @@ public class PathFollower : MonoBehaviour
         inp_stm.Close();
 
         //Failo nuskaitymas
-		inp_stm = new StreamReader("C:\\Bakalaurinis\\IdealiTrajektorija.txt");
+		inp_stm = new StreamReader("E:\\Bakalaurinis\\idealTrajectory.txt");
 
         i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
