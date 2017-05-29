@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.IO;
 using System;
+using UnityEngine.UI;
 
 public class PathFollower : MonoBehaviour
 {
@@ -22,12 +23,9 @@ public class PathFollower : MonoBehaviour
     public float D1Alt = 6.45f;
     private float dist;
     public int currentPoint = 0;
-    public GameObject dangerIndicatorX;
-    public GameObject clearIndicatorX;
-    public GameObject dangerIndicatorY;
-    public GameObject clearIndicatorY;
-    public GameObject dangerIndicatorZ;
-    public GameObject clearIndicatorZ;
+    public Button buttonX;
+    public Button buttonY;
+    public Button buttonZ;
     public GameObject prefab;
     private static double Q = 0.000001;
     private static double R = 0.000004;
@@ -172,29 +170,25 @@ public class PathFollower : MonoBehaviour
 
     private void changeIndicator(bool dangerActive, String coordinate)
     {
-        switch(coordinate)
+        Color color = dangerActive ? Color.red : Color.green;
+
+        switch (coordinate)
         {
             case "X":
-                dangerIndicatorX.SetActive(dangerActive);
-                clearIndicatorX.SetActive(!dangerActive);
+                buttonX.image.color = color;
                 break;
             case "Y":
-                dangerIndicatorY.SetActive(dangerActive);
-                clearIndicatorY.SetActive(!dangerActive);
+                buttonY.image.color = color;
                 break;
             case "Z":
-                dangerIndicatorZ.SetActive(dangerActive);
-                clearIndicatorZ.SetActive(!dangerActive);
+                buttonZ.image.color = color;
                 break;
             default:
                 throw new Exception();
         }
-      
     }
 
-    //Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate > currentCoordinate || currentCoordinate > maxCoordinate));
-  // Debug.Log("deviation:" + deviationRange + " minCoordinate: " + minCoordinate + " maxCoordinate:" + maxCoordinate + " currentCoordinate:" + currentCoordinate + " deviating:" + (minCoordinate<currentCoordinate || currentCoordinate<maxCoordinate));
-        private void checkVectorDeviation()
+    private void checkVectorDeviation()
     {
         Vector3 currentVector = realVectors[currentPoint];
         Vector3 correctVector = idealVectors[currentPoint];

@@ -10,6 +10,18 @@ public class IndicatorCameraSwitch : MonoBehaviour
 
     void OnMouseDown()
     {
+        Debug.Log("Clicked");
+        foreach (Camera c in Camera.allCameras)
+        {
+            c.enabled = false;
+        }
+        indicatorCamera.enabled = true;
+        indicatorDialog.SetActive(false);
+    }
+
+    public void onClick()
+    {
+        Debug.Log("Clicked");
         foreach (Camera c in Camera.allCameras)
         {
             c.enabled = false;
