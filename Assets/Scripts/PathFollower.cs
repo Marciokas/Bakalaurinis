@@ -36,7 +36,7 @@ public class PathFollower : MonoBehaviour
     void Start()
     {
         //Failo nuskaitymas
-		StreamReader inp_stm = new StreamReader("E:\\Bakalaurinis\\realTrajectory.txt");
+		StreamReader inp_stm = new StreamReader(Application.dataPath + "\\realTrajectory.txt");
 
         int i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos
@@ -58,7 +58,7 @@ public class PathFollower : MonoBehaviour
         inp_stm.Close();
 
         //Failo nuskaitymas
-		inp_stm = new StreamReader("E:\\Bakalaurinis\\idealTrajectory.txt");
+		inp_stm = new StreamReader(Application.dataPath + "\\idealTrajectory.txt");
 
         i = 0;
         //Ciklas vykdomas iki nuskaityto failo pabaigos

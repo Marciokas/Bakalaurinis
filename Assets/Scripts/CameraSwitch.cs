@@ -22,7 +22,12 @@ public class CameraSwitch : MonoBehaviour {
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             firstCamera.enabled = false;
             thirdCamera.enabled = false;
